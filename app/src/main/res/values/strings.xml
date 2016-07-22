@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">PopularMoviesOne</string>
+    <string name="title_activity_detail">MovieDetail</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="reload_movies">Movie Sort Value</string>
+    <string name="pref_sort" translatable="false">Sort</string>
+    <string name="pref_sort_popular" translatable="false">popular</string>
+    <string name="pref_sort_rate" translatable="false">rate</string>
+    <string name="pref_label_popular">Popular</string>
+    <string name="pref_label_rate">Rate</string>
+    <string name="action_settings">Order</string>
+    <string name="action_refresh">Refresh</string>
+
+</resources>
