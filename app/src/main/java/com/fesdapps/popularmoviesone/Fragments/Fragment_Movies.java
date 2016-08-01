@@ -109,7 +109,7 @@ public class Fragment_Movies extends Fragment{
             {
                 final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular?api_key=";
                 final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
-                final String USER_KEY = "645197735faaceb67ab59d10899455a6";
+                final String USER_KEY = "-";
                 String strurl = "";
                 if (isTopRated) {
                     strurl = MOVIE_BASE_URL_TOP_RATED + USER_KEY;
