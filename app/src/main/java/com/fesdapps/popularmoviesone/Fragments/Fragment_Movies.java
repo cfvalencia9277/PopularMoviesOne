@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -110,7 +109,7 @@ public class Fragment_Movies extends Fragment{
             {
                 final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular?api_key=";
                 final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
-                final String USER_KEY = "USER_PERSONAL_KEY";
+                final String USER_KEY = "645197735faaceb67ab59d10899455a6";
                 String strurl = "";
                 if (isTopRated) {
                     strurl = MOVIE_BASE_URL_TOP_RATED + USER_KEY;
