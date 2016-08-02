@@ -2,6 +2,8 @@ package com.fesdapps.popularmoviesone;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 
 import com.fesdapps.popularmoviesone.Fragments.MovieDetailFragment;
 
@@ -21,6 +23,10 @@ public class MovieDetail extends AppCompatActivity {
                     .commit();
         }
 
+    }
+
+    public void add_favorite(View v){
+        Log.e("button","clicked on fav");
     }
 
 

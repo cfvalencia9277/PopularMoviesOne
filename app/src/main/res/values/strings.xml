@@ -6,9 +6,12 @@
     <string name="pref_sort" translatable="false">Sort</string>
     <string name="pref_sort_popular" translatable="false">popular</string>
     <string name="pref_sort_rate" translatable="false">rate</string>
+    <string name="pref_sort_favorite" translatable="false">favorite</string>
     <string name="pref_label_popular">Popular</string>
     <string name="pref_label_rate">Rate</string>
+    <string name="pref_label_favorite">Favorite</string>
     <string name="action_settings">Order</string>
     <string name="action_refresh">Refresh</string>
+
 
 </resources>

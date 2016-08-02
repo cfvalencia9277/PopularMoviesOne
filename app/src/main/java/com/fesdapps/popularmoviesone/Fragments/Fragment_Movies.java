@@ -107,9 +107,9 @@ public class Fragment_Movies extends Fragment{
         protected List<MovieModel> doInBackground(List<MovieModel>... params) {
             HttpURLConnection urlConnection = null;
             {
-                final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular?api_key=";
-                final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
-                final String USER_KEY = "-";
+                final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular";
+                final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated";
+                final String USER_KEY = "USER_API_KEY";
                 String strurl = "";
                 if (isTopRated) {
                     strurl = MOVIE_BASE_URL_TOP_RATED + USER_KEY;
