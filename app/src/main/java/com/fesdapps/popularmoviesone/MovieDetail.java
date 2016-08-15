@@ -25,6 +25,7 @@ public class MovieDetail extends AppCompatActivity {
 
     }
 
+
     public void add_favorite(View v){
         Log.e("button","clicked on fav");
     }

@@ -17,6 +17,7 @@ import com.fesdapps.popularmoviesone.MovieDetail;
 import com.fesdapps.popularmoviesone.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,11 +47,14 @@ public class MoviesAdapter extends ArrayAdapter<MovieModel> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getContext(), MovieDetail.class);
+                intent.putExtra("movie",movie);
+                /*
                 intent.putExtra("title", movie.getOriginal_title());
                 intent.putExtra("posterImg",BASE_URL_IMG+movie.getPoster_path());
                 intent.putExtra("synopsis", movie.getOverview());
                 intent.putExtra("user_rate", movie.getVote_average());
                 intent.putExtra("realease_date", movie.getRelease_date());
+                */
                 getContext().startActivity(intent);
             }
         });
