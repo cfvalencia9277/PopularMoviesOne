@@ -32,6 +32,7 @@ public class MovieDetailFragment extends Fragment {
     private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     private static final String REVIEW_KEY = "/reviews?api_key=645197735faaceb67ab59d10899455a6";
+
     private static final String VIDEOS_KEY = "/videos?api_key=645197735faaceb67ab59d10899455a6";
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
