@@ -4,15 +4,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.fesdapps.popularmoviesone.Adapters.MovieTrailerAdapter;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
+import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
 import com.fesdapps.popularmoviesone.R;
+import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.squareup.picasso.Picasso;
@@ -22,6 +29,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -32,12 +41,16 @@ public class MovieDetailFragment extends Fragment {
     private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     private static final String REVIEW_KEY = "/reviews?api_key=645197735faaceb67ab59d10899455a6";
-
     private static final String VIDEOS_KEY = "/videos?api_key=645197735faaceb67ab59d10899455a6";
+    Button fav_btn;
+    RecyclerView videoList;
+    RecyclerView reviewList;
+    private List<MovieTrailerModel> feedsList;
+    MovieTrailerAdapter trailerAdapter;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -55,6 +68,16 @@ public class MovieDetailFragment extends Fragment {
             ((TextView) rootView.findViewById(R.id.release_date)).setText("Realease Data: "+movie.getRelease_date());
             fetchdata(movie.getMovieId());
         }
+        fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
+        fav_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("CLICKED","FAV");
+            }
+        });
+        videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
+        videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
         return rootView;
     }
     public void fetchdata(String movieId){
@@ -74,6 +97,19 @@ public class MovieDetailFragment extends Fragment {
                     str = new String(response, "UTF-8");
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
+                    if(result != null){
+                        feedsList = new ArrayList<>();
+                        for(int i=0; i< result.length();i++){
+                            Gson gson = new Gson();
+                            JSONObject trailerObject = (JSONObject) result.get(i);
+                            MovieTrailerModel movietrailer = gson.fromJson(trailerObject.toString(),MovieTrailerModel.class);
+                            feedsList.add(movietrailer);
+                        }
+                    }
+                    Log.e("FEEDLIST",feedsList.toString());
+                    trailerAdapter = new MovieTrailerAdapter(getContext(),feedsList);
+                    videoList.setAdapter(trailerAdapter);
+                    Log.e("Result Videos",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -85,6 +121,8 @@ public class MovieDetailFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                 // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                Toast.makeText(getActivity(), "Failed to fetch Trailers", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -107,6 +145,7 @@ public class MovieDetailFragment extends Fragment {
                     str = new String(response, "UTF-8");
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
+                    Log.e("Result review",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -117,6 +156,7 @@ public class MovieDetailFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] errorResponse, Throwable e) {
                 // called when response HTTP status is "4XX" (eg. 401, 403, 404)
+                Toast.makeText(getActivity(), "Failed to fetch reviews!", Toast.LENGTH_SHORT).show();
             }
 
             @Override
