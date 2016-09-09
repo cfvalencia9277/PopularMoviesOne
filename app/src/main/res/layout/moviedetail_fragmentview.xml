@@ -63,6 +63,13 @@
         android:id="@+id/synopsis"
         android:textSize="12sp"
         />
+    <TextView
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="TRAILERS: "
+        />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/movieTrailer"
         android:layout_width="match_parent"
@@ -71,6 +78,13 @@
         android:divider="@null"
         tools:listitem="@layout/trailerview">
     </android.support.v7.widget.RecyclerView>
+    <TextView
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:text="REVIEWS: "
+        />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/movieReview"
         tools:listitem="@layout/reviewview"

@@ -16,8 +16,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fesdapps.popularmoviesone.Adapters.MovieTrailerAdapter;
+import com.fesdapps.popularmoviesone.Adapters.MoviesReviewAdapter;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
+import com.fesdapps.popularmoviesone.Models.ReviewModel;
 import com.fesdapps.popularmoviesone.R;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -45,14 +47,10 @@ public class MovieDetailFragment extends Fragment {
     Button fav_btn;
     RecyclerView videoList;
     RecyclerView reviewList;
-    private List<MovieTrailerModel> feedsList;
+    private List<MovieTrailerModel> feedsListTrailers;
+    private List<ReviewModel> feedsListReviews;
     MovieTrailerAdapter trailerAdapter;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
+    MoviesReviewAdapter reviewAdapter;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -78,6 +76,7 @@ public class MovieDetailFragment extends Fragment {
         videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
         videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
         reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
+        reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
         return rootView;
     }
     public void fetchdata(String movieId){
@@ -98,16 +97,16 @@ public class MovieDetailFragment extends Fragment {
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
                     if(result != null){
-                        feedsList = new ArrayList<>();
+                        feedsListTrailers = new ArrayList<>();
                         for(int i=0; i< result.length();i++){
                             Gson gson = new Gson();
                             JSONObject trailerObject = (JSONObject) result.get(i);
                             MovieTrailerModel movietrailer = gson.fromJson(trailerObject.toString(),MovieTrailerModel.class);
-                            feedsList.add(movietrailer);
+                            feedsListTrailers.add(movietrailer);
                         }
                     }
-                    Log.e("FEEDLIST",feedsList.toString());
-                    trailerAdapter = new MovieTrailerAdapter(getContext(),feedsList);
+                    Log.e("FEEDLIST",feedsListTrailers.toString());
+                    trailerAdapter = new MovieTrailerAdapter(getContext(),feedsListTrailers);
                     videoList.setAdapter(trailerAdapter);
                     Log.e("Result Videos",result.toString());
                 } catch (UnsupportedEncodingException e) {
@@ -142,9 +141,26 @@ public class MovieDetailFragment extends Fragment {
                 // called when response HTTP status is "200 OK"
                 String str = null;
                 try {
+                    Log.e("ENTER","TRY");
                     str = new String(response, "UTF-8");
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
+                    if(result != null){
+                        Log.e("RESULT","NOT NULL");
+                        feedsListReviews = new ArrayList<>();
+                        for(int i=0; i< result.length();i++){
+                            Log.e("ENTER","FOR LOOP");
+                            Gson gson = new Gson();
+                            JSONObject reviewObject = (JSONObject) result.get(i);
+                            ReviewModel moviereview = gson.fromJson(reviewObject.toString(),ReviewModel.class);
+                            Log.e("CONTENT",moviereview.getReviewContent());
+                            feedsListReviews.add(moviereview);
+                        }
+                    }
+                    //Log.e("FEEDLIST",feedsListReviews.toString());
+
+                    reviewAdapter = new MoviesReviewAdapter(getContext(),feedsListReviews);
+                    reviewList.setAdapter(reviewAdapter);
                     Log.e("Result review",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();

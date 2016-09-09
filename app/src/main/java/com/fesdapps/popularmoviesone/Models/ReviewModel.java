@@ -7,19 +7,43 @@ import android.os.Parcelable;
  * Created by Fabian on 16/08/2016.
  */
 public class ReviewModel implements Parcelable {
-
-    String author;
     String content;
+    String id;
+    String author;
+    String url;
 
-    public ReviewModel(String author,String content){
-        this.author = author;
+    public static Creator<ReviewModel> getCREATOR() {
+        return CREATOR;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public ReviewModel(String content,String author,String id, String url){
         this.content = content;
-
+        this.id = id;
+        this.author = author;
+        this.url = url;
     }
 
     protected ReviewModel(Parcel in) {
-        author = in.readString();
         content = in.readString();
+        id = in.readString();
+        author = in.readString();
+        url = in.readString();
     }
 
     public static final Creator<ReviewModel> CREATOR = new Creator<ReviewModel>() {
@@ -58,7 +82,9 @@ public class ReviewModel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(author);
         dest.writeString(content);
+        dest.writeString(id);
+        dest.writeString(author);
+        dest.writeString(url);
     }
 }
