@@ -25,6 +25,11 @@
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" >
         </activity>
+        <provider
+            android:authorities="com.fesdapps.popularmoviesone"
+            android:name="com.fesdapps.popularmoviesone.Data.MoviesProvider"
+            android:exported="false"
+            />
     </application>
 
 </manifest>

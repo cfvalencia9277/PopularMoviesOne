@@ -1,7 +1,10 @@
 package com.fesdapps.popularmoviesone.Fragments;
 
+import android.content.ContentProviderOperation;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +20,8 @@ import android.widget.Toast;
 
 import com.fesdapps.popularmoviesone.Adapters.MovieTrailerAdapter;
 import com.fesdapps.popularmoviesone.Adapters.MoviesReviewAdapter;
+import com.fesdapps.popularmoviesone.Data.MovieColumns;
+import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
 import com.fesdapps.popularmoviesone.Models.ReviewModel;
@@ -51,13 +56,14 @@ public class MovieDetailFragment extends Fragment {
     private List<ReviewModel> feedsListReviews;
     MovieTrailerAdapter trailerAdapter;
     MoviesReviewAdapter reviewAdapter;
+    MovieModel movie;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
         Intent intent = getActivity().getIntent();
         if (intent != null) {
-            MovieModel movie =intent.getParcelableExtra("movie");
+            movie =intent.getParcelableExtra("movie");
             ((TextView) rootView.findViewById(R.id.original_title)).setText(movie.getOriginal_title());
             ImageView img =(ImageView) rootView.findViewById(R.id.poster_detal_img);
             Picasso.with(getContext()).load(BASE_URL_IMG+movie.getPoster_path()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(img);
@@ -71,6 +77,7 @@ public class MovieDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.e("CLICKED","FAV");
+                insertData(movie);
             }
         });
         videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
@@ -181,5 +188,26 @@ public class MovieDetailFragment extends Fragment {
             }
         });
 
+    }
+    public void insertData(MovieModel movieInsert){
+        Log.e("DATA", "insert");
+        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
+
+            ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+                    MoviesProvider.Movies.CONTENT_URI);
+            builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
+            builder.withValue(MovieColumns.ORIGINAL_TITLE, movieInsert.getOriginal_title());
+            builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
+            builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
+            builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
+            builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
+            batchOperations.add(builder.build());
+
+
+        try{
+            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+        } catch(RemoteException | OperationApplicationException e){
+            Log.e("DATA", "Error applying batch insert", e);
+        }
     }
 }

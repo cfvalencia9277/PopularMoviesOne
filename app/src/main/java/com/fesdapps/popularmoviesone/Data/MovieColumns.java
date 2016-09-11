@@ -12,6 +12,7 @@ public interface MovieColumns {
 
     @DataType(DataType.Type.INTEGER)@PrimaryKey @AutoIncrement public static final String _ID = "_id";
 
+    @DataType(DataType.Type.TEXT)@NotNull public static final String ID = "ID";
     @DataType(DataType.Type.TEXT)@NotNull public static final String POSTER_PATH = "Poster_Path";
     @DataType(DataType.Type.TEXT)@NotNull public static final String OVERVIEW = "Overview";
     @DataType(DataType.Type.TEXT)@NotNull public static final String RELEASE_DATE = "Release_Date";

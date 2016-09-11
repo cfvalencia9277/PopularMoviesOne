@@ -13,7 +13,7 @@ import net.simonvt.schematic.annotation.TableEndpoint;
 @ContentProvider(authority = MoviesProvider.AUTHORITY,database = MoviesDatabase.class)
 public class MoviesProvider {
 
-    public static final String AUTHORITY = "com.fesdapps.popularmoviesone.Data.MoviesProvider";
+    public static final String AUTHORITY = "com.fesdapps.popularmoviesone";
 
     static final Uri BASE_CONTENT_URI = Uri.parse("content://"+AUTHORITY);
 
@@ -44,8 +44,40 @@ public class MoviesProvider {
             type = "vnd.android.cursor,dir/Movies",
             whereColumn = MovieColumns._ID,
             pathSegment = 1)
-    public static Uri withID(long id){
+    public static Uri MoviewithID(long id){
         return buildUri(Path.MOVIES, String.valueOf(id));
+    }
+    @TableEndpoint(table = MoviesDatabase.TRAILERS)public static class Trailers{
+        @ContentUri(
+                path = Path.TRAILERS,
+                type = "vnd.android.cursor,dir/Trailers",
+                defaultSort = TrailerColumns.NAME+ " ASC")
+        public static final Uri CONTENT_URI = buildUri(Path.TRAILERS);
+    }
+    @InexactContentUri(
+            name = "TRAILER_ID",
+            path = Path.TRAILERS+"/#",
+            type = "vnd.android.cursor,dir/Trailers",
+            whereColumn = TrailerColumns._ID,
+            pathSegment = 1)
+    public static Uri TrailerwithID(long id){
+        return buildUri(Path.TRAILERS, String.valueOf(id));
+    }
+    @TableEndpoint(table = MoviesDatabase.REVIEWS)public static class Reviews{
+        @ContentUri(
+                path = Path.REVIEWS,
+                type = "vnd.android.cursor,dir/Reviews",
+                defaultSort = ReviewColumns.AUTHOR+ " ASC")
+        public static final Uri CONTENT_URI = buildUri(Path.REVIEWS);
+    }
+    @InexactContentUri(
+            name = "REVIEW_ID",
+            path = Path.REVIEWS+"/#",
+            type = "vnd.android.cursor,dir/Reviews",
+            whereColumn = ReviewColumns._ID,
+            pathSegment = 1)
+    public static Uri ReviewwithID(long id){
+        return buildUri(Path.REVIEWS, String.valueOf(id));
     }
 
 }
