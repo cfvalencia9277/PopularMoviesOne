@@ -27,7 +27,7 @@
         </activity>
         <provider
             android:authorities="com.fesdapps.popularmoviesone"
-            android:name="com.fesdapps.popularmoviesone.Data.MoviesProvider"
+            android:name="com.fesdapps.popularmoviesone.Data.generated.MoviesProvider"
             android:exported="false"
             />
     </application>
