@@ -30,7 +30,6 @@ public class MoviesAdapter extends ArrayAdapter<MovieModel> {
     public MoviesAdapter(Activity context, List<MovieModel> movies){
         super(context, 0, movies);
         this.mContext = context;
-
     }
 
     @Override

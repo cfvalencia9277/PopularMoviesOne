@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
 import com.fesdapps.popularmoviesone.Fragments.Fragment_Movies;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 
@@ -17,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Stetho.initializeWithDefaults(this);
         setContentView(R.layout.activity_main);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()

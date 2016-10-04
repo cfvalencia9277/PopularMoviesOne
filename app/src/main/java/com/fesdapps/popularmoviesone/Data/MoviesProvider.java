@@ -47,6 +47,15 @@ public class MoviesProvider {
     public static Uri MoviewithID(long id){
         return buildUri(Path.MOVIES, String.valueOf(id));
     }
+    @InexactContentUri(
+            name = "MOVIE_IDSERVER",
+            path = MoviesProvider.Path.MOVIES+"/#",
+            type = "vnd.android.cursor.item/Movies",
+            whereColumn = MovieColumns.ID,
+            pathSegment = 1)
+    public static Uri MoviewithIDSERVER(String id){
+        return buildUri(Path.MOVIES, id);
+    }
     @TableEndpoint(table = MoviesDatabase.TRAILERS)public static class Trailers{
         @ContentUri(
                 path = Path.TRAILERS,

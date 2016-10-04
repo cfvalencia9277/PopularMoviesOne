@@ -190,24 +190,26 @@ public class MovieDetailFragment extends Fragment {
 
     }
     public void insertData(MovieModel movieInsert){
-        Log.e("DATA", "insert");
-        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
 
-            ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-                    MoviesProvider.Movies.CONTENT_URI);
-            builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
-            builder.withValue(MovieColumns.ORIGINAL_TITLE, movieInsert.getOriginal_title());
-            builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
-            builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
-            builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
-            builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
-            batchOperations.add(builder.build());
-
-
-        try{
-            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
-        } catch(RemoteException | OperationApplicationException e){
-            Log.e("DATA", "Error applying batch insert", e);
-        }
+         if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
+             Log.e("MOVIE",MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()).toString());
+         }else{
+             Log.e("MOVIE","NEW FAV");
+             ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
+             ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+                     MoviesProvider.Movies.CONTENT_URI);
+             builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
+             builder.withValue(MovieColumns.ORIGINAL_TITLE, movieInsert.getOriginal_title());
+             builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
+             builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
+             builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
+             builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
+             batchOperations.add(builder.build());
+             try{
+                 getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+             } catch(RemoteException | OperationApplicationException e){
+                 Log.e("DATA", "Error applying batch insert", e);
+             }
+         }
     }
 }

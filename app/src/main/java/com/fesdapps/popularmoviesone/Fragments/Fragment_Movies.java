@@ -74,7 +74,7 @@ public class Fragment_Movies extends Fragment{
         rootView = inflater.inflate(R.layout.mainactivity_fragmentview,container,false);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progress);
         gridView = (GridView) rootView.findViewById(R.id.maingridview);
-            return rootView;
+        return rootView;
     }
     public void updateOrder(){
         new AsyncHttpTaskMovies().execute();
