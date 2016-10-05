@@ -40,8 +40,7 @@ public class MoviesAdapter extends ArrayAdapter<MovieModel> {
         }
         ImageView movieposter = (ImageView) convertView.findViewById(R.id.posterimg);
         String imgUrl = BASE_URL_IMG+movie.getPoster_path();
-        Picasso.with(mContext).load(imgUrl).error(R.mipmap.ic_launcher)
-                .placeholder(R.mipmap.ic_launcher).into(movieposter);
+        Picasso.with(mContext).load(imgUrl).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(movieposter);
         movieposter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

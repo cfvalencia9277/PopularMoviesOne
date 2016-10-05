@@ -3,10 +3,14 @@ package com.fesdapps.popularmoviesone.Fragments;
 import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.OperationApplicationException;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,6 +25,7 @@ import android.widget.Toast;
 import com.fesdapps.popularmoviesone.Adapters.MovieTrailerAdapter;
 import com.fesdapps.popularmoviesone.Adapters.MoviesReviewAdapter;
 import com.fesdapps.popularmoviesone.Data.MovieColumns;
+import com.fesdapps.popularmoviesone.Data.MoviesDatabase;
 import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
@@ -44,7 +49,7 @@ import cz.msebera.android.httpclient.Header;
 /**
  * Created by Fabian on 22/07/2016.
  */
-public class MovieDetailFragment extends Fragment {
+public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     private static final String REVIEW_KEY = "/reviews?api_key=645197735faaceb67ab59d10899455a6";
@@ -57,6 +62,10 @@ public class MovieDetailFragment extends Fragment {
     MovieTrailerAdapter trailerAdapter;
     MoviesReviewAdapter reviewAdapter;
     MovieModel movie;
+
+    private static final int FAVORITE_LOADER = 0;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -192,7 +201,7 @@ public class MovieDetailFragment extends Fragment {
     public void insertData(MovieModel movieInsert){
 
          if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
-             Log.e("MOVIE",MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()).toString());
+             Log.e("MOVIE","ENTERED ");
          }else{
              Log.e("MOVIE","NEW FAV");
              ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
@@ -211,5 +220,22 @@ public class MovieDetailFragment extends Fragment {
                  Log.e("DATA", "Error applying batch insert", e);
              }
          }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // here user loader manager and return from the database ????
+        // ask how to get data from db using loader - cursor ?
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        // after creating cursor adapter send data to cursor
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // swapCursor to null on the cursoradapter to clear everything out
     }
 }
