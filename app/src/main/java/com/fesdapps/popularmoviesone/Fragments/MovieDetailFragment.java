@@ -4,12 +4,16 @@ import android.content.ContentProviderOperation;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -65,6 +69,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     private static final int FAVORITE_LOADER = 0;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -174,7 +183,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                         }
                     }
                     //Log.e("FEEDLIST",feedsListReviews.toString());
-
                     reviewAdapter = new MoviesReviewAdapter(getContext(),feedsListReviews);
                     reviewList.setAdapter(reviewAdapter);
                     Log.e("Result review",result.toString());
@@ -200,9 +208,16 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
     public void insertData(MovieModel movieInsert){
 
-         if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
-             Log.e("MOVIE","ENTERED ");
-         }else{
+       //  if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
+        //     Log.e("MOVIE","ENTERED ");
+       //  }else{
+        /*
+        propper way to read especific data from db
+            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
+                null, MovieColumns.ID + "= ?",
+                new String[] { movieInsert.getMovieId() }, null);
+        Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
+        */
              Log.e("MOVIE","NEW FAV");
              ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
              ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
@@ -216,22 +231,36 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              batchOperations.add(builder.build());
              try{
                  getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
-             } catch(RemoteException | OperationApplicationException e){
-                 Log.e("DATA", "Error applying batch insert", e);
              }
-         }
+             catch (SQLiteConstraintException e){
+                 Log.e("EXIST", "EXIST");
+             }
+             catch (SQLiteException e){
+                 Log.e("SQLite", "Error ");
+             }
+             catch(RemoteException | OperationApplicationException e){
+                 Log.e("DATA", "Error applying batch insert");
+             }
+             catch (Exception e){
+                 Log.e("EXCEPTION", "GENERAL");
+             }
+
+       //  }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // here user loader manager and return from the database ????
         // ask how to get data from db using loader - cursor ?
-        return null;
+        return new CursorLoader(getContext(),MoviesProvider.Movies.CONTENT_URI,null,null,null,null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // after creating cursor adapter send data to cursor
+        data.moveToFirst();
+        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(data));
+
     }
 
     @Override

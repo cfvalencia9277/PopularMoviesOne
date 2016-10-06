@@ -1,6 +1,8 @@
 package com.fesdapps.popularmoviesone.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +34,16 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        MovieTrailerModel feedItem = feedItemList.get(position);
+        final MovieTrailerModel feedItem = feedItemList.get(position);
         holder.textView.setText(feedItem.getName());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //https://www.youtube.com/watch?v=
+                // add the key of the trailer
+                mContext.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v="+feedItem.getKey())));
+            }
+        });
     }
 
     @Override
