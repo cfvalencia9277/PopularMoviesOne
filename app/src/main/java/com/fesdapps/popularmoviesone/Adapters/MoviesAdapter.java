@@ -53,4 +53,7 @@ public class MoviesAdapter extends ArrayAdapter<MovieModel> {
     }
 
 
+
+
+
 }

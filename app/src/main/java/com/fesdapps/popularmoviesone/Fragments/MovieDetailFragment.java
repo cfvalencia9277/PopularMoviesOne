@@ -228,6 +228,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
              builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
              builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
+             builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), true);
              batchOperations.add(builder.build());
              try{
                  getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);

@@ -19,5 +19,6 @@ public interface MovieColumns {
     @DataType(DataType.Type.TEXT)@NotNull public static final String RELEASE_DATE = "Release_Date";
     @DataType(DataType.Type.TEXT)@NotNull public static final String ORIGINAL_TITLE = "Original_Title";
     @DataType(DataType.Type.TEXT)@NotNull public static final String VOTE_AVERAGE = "Vote_Average";
+    @DataType(DataType.Type.TEXT)@NotNull public static final Boolean IS_FAVORITE = false;
 
 }
