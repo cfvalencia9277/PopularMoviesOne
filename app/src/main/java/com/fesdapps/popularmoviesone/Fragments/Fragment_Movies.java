@@ -16,6 +16,7 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
 import com.fesdapps.popularmoviesone.Adapters.MoviesAdapter;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.R;
@@ -51,6 +52,7 @@ public class Fragment_Movies extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Stetho.initializeWithDefaults(getContext());
 
     }
     @Override

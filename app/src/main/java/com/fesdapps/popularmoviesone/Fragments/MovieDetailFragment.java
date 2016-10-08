@@ -1,6 +1,7 @@
 package com.fesdapps.popularmoviesone.Fragments;
 
 import android.content.ContentProviderOperation;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -31,6 +32,7 @@ import com.fesdapps.popularmoviesone.Adapters.MoviesReviewAdapter;
 import com.fesdapps.popularmoviesone.Data.MovieColumns;
 import com.fesdapps.popularmoviesone.Data.MoviesDatabase;
 import com.fesdapps.popularmoviesone.Data.MoviesProvider;
+import com.fesdapps.popularmoviesone.Data.ReviewColumns;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
 import com.fesdapps.popularmoviesone.Models.ReviewModel;
@@ -178,6 +180,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                             Gson gson = new Gson();
                             JSONObject reviewObject = (JSONObject) result.get(i);
                             ReviewModel moviereview = gson.fromJson(reviewObject.toString(),ReviewModel.class);
+                            addRevietodb(moviereview);
                             Log.e("CONTENT",moviereview.getReviewContent());
                             feedsListReviews.add(moviereview);
                         }
@@ -235,6 +238,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              }
              catch (SQLiteConstraintException e){
                  Log.e("EXIST", "EXIST");
+                 ContentValues values = new ContentValues();
+                 values.put(String.valueOf(MovieColumns.IS_FAVORITE),"true");
+                 String[] mArray = {movieInsert.getMovieId()};
+                 getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,values, MovieColumns.ID+"=?",mArray);
              }
              catch (SQLiteException e){
                  Log.e("SQLite", "Error ");
@@ -247,6 +254,35 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              }
 
        //  }
+    }
+
+    public void addRevietodb(ReviewModel item){
+        Log.e("MOVIE","NEW FAV");
+        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
+        ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+                MoviesProvider.Reviews.CONTENT_URI);
+        builder.withValue(ReviewColumns.MOVIE_ID,movie.getMovieId());
+        builder.withValue(ReviewColumns.ID,item.getId());
+        builder.withValue(ReviewColumns.AUTHOR,item.getReviewAuthor());
+        builder.withValue(ReviewColumns.CONTENT,item.getReviewContent());
+        builder.withValue(ReviewColumns.URL,item.getUrl());
+        batchOperations.add(builder.build());
+        try{
+            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+        }
+        catch (SQLiteConstraintException e){
+            Log.e("EXIST", "EXIST");
+        }
+        catch (SQLiteException e){
+            Log.e("SQLite", "Error ");
+        }
+        catch(RemoteException | OperationApplicationException e){
+            Log.e("DATA", "Error applying batch insert");
+        }
+        catch (Exception e){
+            Log.e("EXCEPTION", "GENERAL");
+        }
+
     }
 
     @Override

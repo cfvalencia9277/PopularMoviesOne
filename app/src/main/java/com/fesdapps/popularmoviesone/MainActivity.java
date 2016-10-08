@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Stetho.initializeWithDefaults(this);
         setContentView(R.layout.activity_main);
+        Stetho.initializeWithDefaults(this);
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.container, new Fragment_Movies())

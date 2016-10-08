@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.fesdapps.popularmoviesone.Data.MovieColumns;
 import com.fesdapps.popularmoviesone.R;
 import com.squareup.picasso.Picasso;
 
@@ -36,7 +38,7 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
 
     @Override
     protected void onBindViewHolder(CustomViewHolder holder, Cursor cursor) {
-        int pathIndex = cursor.getColumnIndex("Poster_Path");
+        int pathIndex = cursor.getColumnIndex(MovieColumns.POSTER_PATH);
         String imgPath = cursor.getString(pathIndex);
         Picasso.with(mContext).load(imgPath).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(holder.posterImg);
         holder.posterImg.setOnClickListener(new View.OnClickListener() {
