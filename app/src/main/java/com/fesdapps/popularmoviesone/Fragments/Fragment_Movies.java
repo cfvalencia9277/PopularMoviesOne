@@ -53,6 +53,7 @@ public class Fragment_Movies extends Fragment {
     ProgressBar progressBar;
     MoviesAdapter adapter;
 
+    String sortType;
 
 
     public Fragment_Movies(){}
@@ -108,7 +109,7 @@ public class Fragment_Movies extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
             gridView.setVisibility(View.GONE);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
+            sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
             if(sortType.equalsIgnoreCase("rate")){
                 isTopRated=true;
             }else {isTopRated=false;}
@@ -150,7 +151,7 @@ public class Fragment_Movies extends Fragment {
                             Gson gson = new Gson();
                             JSONObject movieObject = (JSONObject) result.get(i);
                             MovieModel movie = gson.fromJson(movieObject.toString(),MovieModel.class);
-                            //insertData(movie);
+                            insertData(movie);
                             dataServer.add(movie);
                         }
                     }
@@ -205,6 +206,7 @@ public class Fragment_Movies extends Fragment {
         builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
         builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
         builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), false);
+        builder.withValue(MovieColumns.TYPE,sortType);
         batchOperations.add(builder.build());
         try{
             getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);

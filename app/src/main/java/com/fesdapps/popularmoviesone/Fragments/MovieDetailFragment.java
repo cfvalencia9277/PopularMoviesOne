@@ -180,7 +180,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                             Gson gson = new Gson();
                             JSONObject reviewObject = (JSONObject) result.get(i);
                             ReviewModel moviereview = gson.fromJson(reviewObject.toString(),ReviewModel.class);
-                            addRevietodb(moviereview);
+                            addReviewtodb(moviereview);
                             Log.e("CONTENT",moviereview.getReviewContent());
                             feedsListReviews.add(moviereview);
                         }
@@ -220,7 +220,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                 null, MovieColumns.ID + "= ?",
                 new String[] { movieInsert.getMovieId() }, null);
         Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
-*/
+
              Log.e("MOVIE","NEW FAV");
              ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
              ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
@@ -239,14 +239,17 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              }
 
              catch (SQLiteConstraintException e){
-                 Log.e("ERROR", "Existed ");
-                 ContentValues values = new ContentValues();
-                 values.put(String.valueOf(MovieColumns.IS_FAVORITE),true);
-                 String[] mArray = {movieInsert.getMovieId()};
-                 getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,values, MovieColumns.ID+"=?",mArray);
-             }
+             */
+        try {
+            Log.e("ERROR", "Existed ");
+            ContentValues values = new ContentValues();
+            values.put(String.valueOf(MovieColumns.IS_FAVORITE), true);
+            String[] mArray = {movieInsert.getMovieId()};
+            getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI, values, MovieColumns.ID + "=?", mArray);
+        }
+             //}
 
-              catch (RemoteException | OperationApplicationException e) {
+              catch (Exception e) {
                   e.printStackTrace();
                   Log.e("EXCEPTION", "GENERAL");
              }
@@ -254,7 +257,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
        //  }
     }
 
-    public void addRevietodb(ReviewModel item){
+    public void addReviewtodb(ReviewModel item){
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 MoviesProvider.Reviews.CONTENT_URI);
