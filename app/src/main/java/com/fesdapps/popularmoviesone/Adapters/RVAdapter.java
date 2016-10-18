@@ -40,11 +40,13 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
     protected void onBindViewHolder(CustomViewHolder holder, Cursor cursor) {
         int pathIndex = cursor.getColumnIndex(MovieColumns.POSTER_PATH);
         String imgPath = cursor.getString(pathIndex);
+        int idIndex = cursor.getColumnIndex(MovieColumns.ID);
+        final String movieId = cursor.getString(idIndex);
         Picasso.with(mContext).load(imgPath).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(holder.posterImg);
         holder.posterImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG,"Clicked on movie poster");
+                Log.e(TAG,"Clicked on movie:  "+movieId);
             }
         });
 

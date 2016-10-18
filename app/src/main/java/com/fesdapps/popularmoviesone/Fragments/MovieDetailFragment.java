@@ -220,7 +220,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                 null, MovieColumns.ID + "= ?",
                 new String[] { movieInsert.getMovieId() }, null);
         Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
-        */
+*/
              Log.e("MOVIE","NEW FAV");
              ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
              ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
@@ -230,34 +230,31 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
              builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
              builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
+             builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), false);
+             builder.withValue(MovieColumns.TYPE, "popular");
              builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
-             builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), true);
              batchOperations.add(builder.build());
              try{
                  getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
              }
+
              catch (SQLiteConstraintException e){
-                 Log.e("EXIST", "EXIST");
+                 Log.e("ERROR", "Existed ");
                  ContentValues values = new ContentValues();
-                 values.put(String.valueOf(MovieColumns.IS_FAVORITE),"true");
+                 values.put(String.valueOf(MovieColumns.IS_FAVORITE),true);
                  String[] mArray = {movieInsert.getMovieId()};
                  getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,values, MovieColumns.ID+"=?",mArray);
              }
-             catch (SQLiteException e){
-                 Log.e("SQLite", "Error ");
-             }
-             catch(RemoteException | OperationApplicationException e){
-                 Log.e("DATA", "Error applying batch insert");
-             }
-             catch (Exception e){
-                 Log.e("EXCEPTION", "GENERAL");
+
+              catch (RemoteException | OperationApplicationException e) {
+                  e.printStackTrace();
+                  Log.e("EXCEPTION", "GENERAL");
              }
 
        //  }
     }
 
     public void addRevietodb(ReviewModel item){
-        Log.e("MOVIE","NEW FAV");
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 MoviesProvider.Reviews.CONTENT_URI);

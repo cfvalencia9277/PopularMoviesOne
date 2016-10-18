@@ -1,8 +1,14 @@
 package com.fesdapps.popularmoviesone.Fragments;
 
+import android.content.ContentProviderOperation;
+import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -18,6 +24,8 @@ import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.fesdapps.popularmoviesone.Adapters.MoviesAdapter;
+import com.fesdapps.popularmoviesone.Data.MovieColumns;
+import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.R;
 import com.google.gson.Gson;
@@ -39,7 +47,7 @@ import java.util.List;
 /**
  * Created by Fabian on 21/07/2016.
  */
-public class Fragment_Movies extends Fragment{
+public class Fragment_Movies extends Fragment {
     View rootView;
     GridView gridView;
     ProgressBar progressBar;
@@ -142,6 +150,7 @@ public class Fragment_Movies extends Fragment{
                             Gson gson = new Gson();
                             JSONObject movieObject = (JSONObject) result.get(i);
                             MovieModel movie = gson.fromJson(movieObject.toString(),MovieModel.class);
+                            //insertData(movie);
                             dataServer.add(movie);
                         }
                     }
@@ -172,6 +181,48 @@ public class Fragment_Movies extends Fragment{
             }
 
         }
+    }
+
+    public void insertData(MovieModel movieInsert){
+
+        //  if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
+        //     Log.e("MOVIE","ENTERED ");
+        //  }else{
+        /*
+        propper way to read especific data from db
+            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
+                null, MovieColumns.ID + "= ?",
+                new String[] { movieInsert.getMovieId() }, null);
+        Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
+        */
+        Log.e("MOVIE","Added Movie");
+        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
+        ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(MoviesProvider.Movies.CONTENT_URI);
+        builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
+        builder.withValue(MovieColumns.ORIGINAL_TITLE, movieInsert.getOriginal_title());
+        builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
+        builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
+        builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
+        builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
+        builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), false);
+        batchOperations.add(builder.build());
+        try{
+            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+        }
+        catch (SQLiteConstraintException e){
+            Log.e("EXIST", "EXIST MAIN");
+        }
+        catch (SQLiteException e){
+            Log.e("SQLite", "Error ");
+        }
+        catch(RemoteException | OperationApplicationException e){
+            Log.e("DATA", "Error applying batch insert");
+        }
+        catch (Exception e){
+            Log.e("EXCEPTION", "GENERAL");
+        }
+
+        //  }
     }
 
 
