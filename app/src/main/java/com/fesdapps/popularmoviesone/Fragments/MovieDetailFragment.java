@@ -69,6 +69,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     MovieTrailerAdapter trailerAdapter;
     MoviesReviewAdapter reviewAdapter;
     MovieModel movie;
+    String movieId;
 
     private static final int FAVORITE_LOADER = 0;
 
@@ -84,20 +85,24 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         View rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
         Intent intent = getActivity().getIntent();
         if (intent != null) {
-            movie =intent.getParcelableExtra("movie");
+           // movie =intent.getParcelableExtra("movie");
+            movieId = intent.getStringExtra("movie");
+            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
+                    null, MovieColumns.ID + "= ?",
+                    new String[] { movieId }, null);
+            movie = createMovieModel(c);
             ((TextView) rootView.findViewById(R.id.original_title)).setText(movie.getOriginal_title());
             ImageView img =(ImageView) rootView.findViewById(R.id.poster_detal_img);
             Picasso.with(getContext()).load(BASE_URL_IMG+movie.getPoster_path()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(img);
             ((TextView) rootView.findViewById(R.id.synopsis)).setText(movie.getOverview());
             ((TextView) rootView.findViewById(R.id.user_rate)).setText("User Rating: "+ movie.getVote_average());
             ((TextView) rootView.findViewById(R.id.release_date)).setText("Realease Data: "+movie.getRelease_date());
-            fetchdata(movie.getMovieId());
+            fetchdata(movieId);
         }
         fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
         fav_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Log.e("CLICKED","FAV");
                 insertData(movie);
             }
         });
@@ -263,7 +268,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 MoviesProvider.Reviews.CONTENT_URI);
-        builder.withValue(ReviewColumns.MOVIE_ID,movie.getMovieId());
+        builder.withValue(ReviewColumns.MOVIE_ID,movieId);
         builder.withValue(ReviewColumns.ID,item.getId());
         builder.withValue(ReviewColumns.AUTHOR,item.getReviewAuthor());
         builder.withValue(ReviewColumns.CONTENT,item.getReviewContent());
@@ -289,7 +294,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
                 MoviesProvider.Trailers.CONTENT_URI);
-        builder.withValue(TrailerColumns.MOVIE_ID,movie.getMovieId());
+        builder.withValue(TrailerColumns.MOVIE_ID,movieId);
         builder.withValue(TrailerColumns.ID,item.getId());
         builder.withValue(TrailerColumns.SITE,item.getSite());
         builder.withValue(TrailerColumns.ISO_639_1,item.getIso_639_1());
@@ -335,4 +340,23 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onLoaderReset(Loader<Cursor> loader) {
         // swapCursor to null on the cursoradapter to clear everything out
     }
+
+    MovieModel createMovieModel(Cursor cursor){
+        int idIndex = cursor.getColumnIndexOrThrow("id");
+        int posterindex = cursor.getColumnIndexOrThrow("poster_path");
+        int overviewIndex = cursor.getColumnIndexOrThrow("overview");
+        int releadeIndex = cursor.getColumnIndexOrThrow("release_date");
+        int originalIndex = cursor.getColumnIndexOrThrow("original_title");
+        int voteIndex = cursor.getColumnIndexOrThrow("vote_average");
+        String id = cursor.getString(idIndex);
+        String poster_path= cursor.getString(posterindex);
+        String overview= cursor.getString(overviewIndex);
+        String release_date= cursor.getString(releadeIndex);
+        String original_title= cursor.getString(originalIndex);
+        String vote_average= cursor.getString(voteIndex);
+        return new MovieModel(id,poster_path,overview,release_date,original_title,vote_average);
+    }
+
+
+
 }

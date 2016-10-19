@@ -37,6 +37,8 @@ import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.R;
 import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,6 +47,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -52,19 +55,18 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
+
 /**
  * Created by Fabian on 21/07/2016.
  */
 public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
     View rootView;
-    GridView gridView;
     ProgressBar progressBar;
-    MoviesAdapter adapter;
-
     String sortType;
-
     RVAdapter rvaAdapte;
     RecyclerView recyclerView;
+    SharedPreferences prefs;
 
     private static final int MOVIE_LOADER = 101;
 
@@ -75,7 +77,11 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Stetho.initializeWithDefaults(getContext());
-        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
+        Bundle args = new Bundle();
+        args.putString("sort",sortType);
+        getLoaderManager().initLoader(MOVIE_LOADER, args, this);
         rvaAdapte = new RVAdapter(getContext());
     }
     @Override
@@ -89,7 +95,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-           // updateOrder();
+            updateOrder();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -98,7 +104,6 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.mainactivity_fragmentview,container,false);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progress);
-        gridView = (GridView) rootView.findViewById(R.id.maingridview);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
         RecyclerView.LayoutManager layoutManager2 = new GridLayoutManager(getActivity(),2);
         recyclerView.setLayoutManager(layoutManager2);
@@ -106,105 +111,90 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
     public void updateOrder(){
-        new AsyncHttpTaskMovies().execute();
-
+        progressBar.setVisibility(View.VISIBLE);
+        fetchdata();
+        restartLoader();
     }
     @Override
     public void onStart() {
         super.onStart();
-       // new AsyncHttpTaskMovies().execute();
+        progressBar.setVisibility(View.VISIBLE);
+        fetchdata();
+        restartLoader();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        restartLoader();
+    }
+    public void restartLoader(){
+        sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
+        Bundle args = new Bundle();
+        args.putString("sort",sortType);
+        getLoaderManager().restartLoader(MOVIE_LOADER, args, this);
+    }
 
-    public class AsyncHttpTaskMovies extends AsyncTask<List<MovieModel>, Void, List<MovieModel>> {
-
-        public boolean isTopRated;
-        ArrayList<MovieModel> dataServer = new ArrayList<MovieModel>();
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
-            gridView.setVisibility(View.GONE);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
-            Log.e("PREFS",sortType);
-            if(sortType.equalsIgnoreCase("rate")){
-                isTopRated=true;
-            }else {isTopRated=false;}
-        }
-
-        @Override
-        protected List<MovieModel> doInBackground(List<MovieModel>... params) {
-            HttpURLConnection urlConnection = null;
-            {
-                final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular";
-                final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated";
-                final String USER_KEY = "?api_key=645197735faaceb67ab59d10899455a6";
-                String strurl = "";
-                if (isTopRated) {
-                    strurl = MOVIE_BASE_URL_TOP_RATED + USER_KEY;
-                } else {
-                    strurl = MOVIE_BASE_URL_POPULAR + USER_KEY;
-                }
-                URL url = null;
+    public void fetchdata(){
+        AsyncHttpClient client = new AsyncHttpClient();
+        final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular?api_key=645197735faaceb67ab59d10899455a6";
+        final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated?api_key=645197735faaceb67ab59d10899455a6";
+        client.get(MOVIE_BASE_URL_POPULAR, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                progressBar.setVisibility(View.GONE);
                 try {
-                    url = new URL(strurl);
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
-
-                    StringBuilder sb = new StringBuilder();
-                    int HttpResult = urlConnection.getResponseCode();
-                    if (HttpResult == HttpURLConnection.HTTP_OK) {
-                        BufferedReader br = new BufferedReader(
-                                new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
-                        String line = null;
-                        while ((line = br.readLine()) != null) {
-                            sb.append(line + "\n");
-                        }
-                        br.close();
-                        JSONObject serversent = new JSONObject(sb.toString());
-                        JSONArray result = serversent.getJSONArray("results");
-                        for(int i=0;i<result.length();i++){
-                            Gson gson = new Gson();
-                            JSONObject movieObject = (JSONObject) result.get(i);
-                            MovieModel movie = gson.fromJson(movieObject.toString(),MovieModel.class);
-                            insertData(movie);
-                            dataServer.add(movie);
-                        }
+                    String str = new String(responseBody, "UTF-8");
+                    JSONObject serversent = new JSONObject(str);
+                    JSONArray result = serversent.getJSONArray("results");
+                    for(int i=0;i<result.length();i++){
+                        Gson gson = new Gson();
+                        JSONObject movieObject = (JSONObject) result.get(i);
+                        MovieModel movie = gson.fromJson(movieObject.toString(),MovieModel.class);
+                        insertData(movie,"popular");
                     }
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
+                }catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
             }
 
-            return null;
-        }
-        @Override
-        protected void onPostExecute(List<MovieModel> plantsfeed) {
-            progressBar.setVisibility(View.GONE);
-            gridView.setVisibility(View.VISIBLE);
-            if (dataServer.size()>0) {
-                adapter = new MoviesAdapter(getActivity(), dataServer);
-                gridView.setAdapter(adapter);
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
 
-            } else {
-                Toast.makeText(getActivity(), "Failed to fetch data!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        client.get(MOVIE_BASE_URL_TOP_RATED, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                progressBar.setVisibility(View.GONE);
+                try {
+                    String str = new String(responseBody, "UTF-8");
+                    JSONObject serversent = new JSONObject(str);
+                    JSONArray result = serversent.getJSONArray("results");
+                    for(int i=0;i<result.length();i++){
+                        Gson gson = new Gson();
+                        JSONObject movieObject = (JSONObject) result.get(i);
+                        MovieModel movie = gson.fromJson(movieObject.toString(),MovieModel.class);
+                        insertData(movie,"rate");
+                    }
+                }catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
 
-        }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
     }
 
-    public void insertData(MovieModel movieInsert){
+
+    public void insertData(MovieModel movieInsert,String sortType){
 
         //  if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
         //     Log.e("MOVIE","ENTERED ");
@@ -216,7 +206,6 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
                 new String[] { movieInsert.getMovieId() }, null);
         Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
         */
-        Log.e("MOVIE","Added Movie");
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(MoviesProvider.Movies.CONTENT_URI);
         builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
@@ -232,7 +221,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
             getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
         }
         catch (SQLiteConstraintException e){
-            Log.e("EXIST", "EXIST MAIN");
+
         }
         catch (SQLiteException e){
             Log.e("SQLite", "Error ");
@@ -248,7 +237,22 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getContext(),MoviesProvider.Movies.CONTENT_URI,null,null,null,null);
+        String sort = args.getString("sort","popular");// bring sort type
+        CursorLoader cl = null;
+            // send loader proper data depending on what sort type.
+            if(sort.equals("popular")) {
+                cl = new CursorLoader(getContext(), MoviesProvider.Movies.CONTENT_URI, null,
+                        MovieColumns.TYPE + "= ?", new String[]{"popular"}, null);
+            }
+            if(sort.equals("rate")) {
+                cl = new CursorLoader(getContext(), MoviesProvider.Movies.CONTENT_URI, null,
+                        MovieColumns.TYPE + "= ?", new String[]{"rate"}, null);
+            }
+            if(sort.equals("favorite")) {
+                cl = new CursorLoader(getContext(),MoviesProvider.Movies.CONTENT_URI,null,
+                        MovieColumns.IS_FAVORITE + "= ?",new String[] { "1" },null);
+            }
+        return cl;
     }
 
     @Override

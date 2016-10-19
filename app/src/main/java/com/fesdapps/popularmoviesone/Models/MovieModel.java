@@ -4,18 +4,21 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 
+
 /**
  * Created by Fabian on 21/07/2016.
  */
 public class MovieModel  implements Parcelable{
 
 
-    String id;
+
+    private String id;
     String poster_path;
     String overview;
     String release_date;
     String original_title;
     String vote_average;
+
 
     protected MovieModel(Parcel in) {
         id = in.readString();

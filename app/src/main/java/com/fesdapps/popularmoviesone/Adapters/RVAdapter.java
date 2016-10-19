@@ -1,6 +1,7 @@
 package com.fesdapps.popularmoviesone.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -11,8 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.fesdapps.popularmoviesone.Data.MovieColumns;
+import com.fesdapps.popularmoviesone.MovieDetail;
 import com.fesdapps.popularmoviesone.R;
 import com.squareup.picasso.Picasso;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by Fabian on 06/10/2016.
@@ -27,8 +31,6 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
     public RVAdapter(Context context) {
         super(null);
         this.mContext =  context;
-        //Cursor cursor = mContext.getContentResolver().query(locationsetting, null, null, null, null);
-        //swapCursor(data);
     }
 
     @Override
@@ -48,6 +50,9 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
             @Override
             public void onClick(View v) {
                 Log.e(TAG,"Clicked on movie:  "+movieId);
+                Intent intent = new Intent(mContext, MovieDetail.class);
+                intent.putExtra("movie",movieId);
+                mContext.startActivity(intent);
             }
         });
     }
