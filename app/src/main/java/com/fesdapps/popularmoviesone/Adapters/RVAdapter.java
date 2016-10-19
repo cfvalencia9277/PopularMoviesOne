@@ -22,12 +22,13 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
 
     private static final String TAG = RVAdapter.class.getSimpleName();
     private final Context mContext;
+    private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
 
-    public RVAdapter(Context context, Uri locationsetting, String sortoder) {
+    public RVAdapter(Context context) {
         super(null);
         this.mContext =  context;
-        Cursor cursor = mContext.getContentResolver().query(locationsetting, null, null, null, sortoder);
-        swapCursor(cursor);
+        //Cursor cursor = mContext.getContentResolver().query(locationsetting, null, null, null, null);
+        //swapCursor(data);
     }
 
     @Override
@@ -42,14 +43,13 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
         String imgPath = cursor.getString(pathIndex);
         int idIndex = cursor.getColumnIndex(MovieColumns.ID);
         final String movieId = cursor.getString(idIndex);
-        Picasso.with(mContext).load(imgPath).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(holder.posterImg);
+        Picasso.with(mContext).load(BASE_URL_IMG+imgPath).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(holder.posterImg);
         holder.posterImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.e(TAG,"Clicked on movie:  "+movieId);
             }
         });
-
     }
 
     public static class CustomViewHolder extends RecyclerView.ViewHolder

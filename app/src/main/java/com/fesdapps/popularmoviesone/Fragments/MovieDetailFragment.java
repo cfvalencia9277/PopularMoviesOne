@@ -33,6 +33,7 @@ import com.fesdapps.popularmoviesone.Data.MovieColumns;
 import com.fesdapps.popularmoviesone.Data.MoviesDatabase;
 import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Data.ReviewColumns;
+import com.fesdapps.popularmoviesone.Data.TrailerColumns;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
 import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
 import com.fesdapps.popularmoviesone.Models.ReviewModel;
@@ -96,7 +97,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         fav_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("CLICKED","FAV");
+                //Log.e("CLICKED","FAV");
                 insertData(movie);
             }
         });
@@ -129,13 +130,14 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                             Gson gson = new Gson();
                             JSONObject trailerObject = (JSONObject) result.get(i);
                             MovieTrailerModel movietrailer = gson.fromJson(trailerObject.toString(),MovieTrailerModel.class);
+                            addTrailertodb(movietrailer);
                             feedsListTrailers.add(movietrailer);
                         }
                     }
-                    Log.e("FEEDLIST",feedsListTrailers.toString());
+                   // Log.e("FEEDLIST",feedsListTrailers.toString());
                     trailerAdapter = new MovieTrailerAdapter(getContext(),feedsListTrailers);
                     videoList.setAdapter(trailerAdapter);
-                    Log.e("Result Videos",result.toString());
+                   // Log.e("Result Videos",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -168,27 +170,27 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                 // called when response HTTP status is "200 OK"
                 String str = null;
                 try {
-                    Log.e("ENTER","TRY");
+                   // Log.e("ENTER","TRY");
                     str = new String(response, "UTF-8");
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
                     if(result != null){
-                        Log.e("RESULT","NOT NULL");
+                        //Log.e("RESULT","NOT NULL");
                         feedsListReviews = new ArrayList<>();
                         for(int i=0; i< result.length();i++){
-                            Log.e("ENTER","FOR LOOP");
+                           // Log.e("ENTER","FOR LOOP");
                             Gson gson = new Gson();
                             JSONObject reviewObject = (JSONObject) result.get(i);
                             ReviewModel moviereview = gson.fromJson(reviewObject.toString(),ReviewModel.class);
                             addReviewtodb(moviereview);
-                            Log.e("CONTENT",moviereview.getReviewContent());
+                            //Log.e("CONTENT",moviereview.getReviewContent());
                             feedsListReviews.add(moviereview);
                         }
                     }
                     //Log.e("FEEDLIST",feedsListReviews.toString());
                     reviewAdapter = new MoviesReviewAdapter(getContext(),feedsListReviews);
                     reviewList.setAdapter(reviewAdapter);
-                    Log.e("Result review",result.toString());
+                    //Log.e("Result review",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -241,7 +243,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
              catch (SQLiteConstraintException e){
              */
         try {
-            Log.e("ERROR", "Existed ");
+            //Log.e("ERROR", "Existed ");
             ContentValues values = new ContentValues();
             values.put(String.valueOf(MovieColumns.IS_FAVORITE), true);
             String[] mArray = {movieInsert.getMovieId()};
@@ -282,7 +284,36 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         catch (Exception e){
             Log.e("EXCEPTION", "GENERAL");
         }
-
+    }
+    public void addTrailertodb(MovieTrailerModel item){
+        ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
+        ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
+                MoviesProvider.Trailers.CONTENT_URI);
+        builder.withValue(TrailerColumns.MOVIE_ID,movie.getMovieId());
+        builder.withValue(TrailerColumns.ID,item.getId());
+        builder.withValue(TrailerColumns.SITE,item.getSite());
+        builder.withValue(TrailerColumns.ISO_639_1,item.getIso_639_1());
+        builder.withValue(TrailerColumns.NAME,item.getName());
+        builder.withValue(TrailerColumns.TYPE,item.getType());
+        builder.withValue(TrailerColumns.KEY,item.getKey());
+        builder.withValue(TrailerColumns.ISO_3166_1,item.getIso_3166_1());
+        builder.withValue(TrailerColumns.SIZE,item.getSize());
+        batchOperations.add(builder.build());
+        try{
+            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+        }
+        catch (SQLiteConstraintException e){
+            Log.e("EXIST", "EXIST");
+        }
+        catch (SQLiteException e){
+            Log.e("SQLite", "Error ");
+        }
+        catch(RemoteException | OperationApplicationException e){
+            Log.e("DATA", "Error applying batch insert");
+        }
+        catch (Exception e){
+            Log.e("EXCEPTION", "GENERAL");
+        }
     }
 
     @Override

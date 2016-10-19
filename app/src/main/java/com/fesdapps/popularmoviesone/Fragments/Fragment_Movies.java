@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
@@ -11,6 +12,12 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,6 +31,7 @@ import android.widget.Toast;
 
 import com.facebook.stetho.Stetho;
 import com.fesdapps.popularmoviesone.Adapters.MoviesAdapter;
+import com.fesdapps.popularmoviesone.Adapters.RVAdapter;
 import com.fesdapps.popularmoviesone.Data.MovieColumns;
 import com.fesdapps.popularmoviesone.Data.MoviesProvider;
 import com.fesdapps.popularmoviesone.Models.MovieModel;
@@ -47,13 +55,18 @@ import java.util.List;
 /**
  * Created by Fabian on 21/07/2016.
  */
-public class Fragment_Movies extends Fragment {
+public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>  {
     View rootView;
     GridView gridView;
     ProgressBar progressBar;
     MoviesAdapter adapter;
 
     String sortType;
+
+    RVAdapter rvaAdapte;
+    RecyclerView recyclerView;
+
+    private static final int MOVIE_LOADER = 101;
 
 
     public Fragment_Movies(){}
@@ -62,7 +75,8 @@ public class Fragment_Movies extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Stetho.initializeWithDefaults(getContext());
-
+        getLoaderManager().initLoader(MOVIE_LOADER, null, this);
+        rvaAdapte = new RVAdapter(getContext());
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -75,7 +89,7 @@ public class Fragment_Movies extends Fragment {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            updateOrder();
+           // updateOrder();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -85,6 +99,10 @@ public class Fragment_Movies extends Fragment {
         rootView = inflater.inflate(R.layout.mainactivity_fragmentview,container,false);
         progressBar = (ProgressBar) rootView.findViewById(R.id.progress);
         gridView = (GridView) rootView.findViewById(R.id.maingridview);
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview);
+        RecyclerView.LayoutManager layoutManager2 = new GridLayoutManager(getActivity(),2);
+        recyclerView.setLayoutManager(layoutManager2);
+        recyclerView.setAdapter(rvaAdapte);
         return rootView;
     }
     public void updateOrder(){
@@ -94,8 +112,9 @@ public class Fragment_Movies extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        new AsyncHttpTaskMovies().execute();
+       // new AsyncHttpTaskMovies().execute();
     }
+
 
     public class AsyncHttpTaskMovies extends AsyncTask<List<MovieModel>, Void, List<MovieModel>> {
 
@@ -110,6 +129,7 @@ public class Fragment_Movies extends Fragment {
             gridView.setVisibility(View.GONE);
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
             sortType = prefs.getString(getString(R.string.pref_sort),getString(R.string.pref_label_popular));
+            Log.e("PREFS",sortType);
             if(sortType.equalsIgnoreCase("rate")){
                 isTopRated=true;
             }else {isTopRated=false;}
@@ -223,15 +243,23 @@ public class Fragment_Movies extends Fragment {
         catch (Exception e){
             Log.e("EXCEPTION", "GENERAL");
         }
-
         //  }
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(getContext(),MoviesProvider.Movies.CONTENT_URI,null,null,null,null);
+    }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        rvaAdapte.swapCursor(data);
+    }
 
-
-
-
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        rvaAdapte.swapCursor(null);
+    }
 
 }
 
