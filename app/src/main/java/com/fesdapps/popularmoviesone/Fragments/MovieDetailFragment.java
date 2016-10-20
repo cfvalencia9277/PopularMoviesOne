@@ -76,7 +76,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
+        //getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
     }
 
     @Override
@@ -90,6 +90,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
                     null, MovieColumns.ID + "= ?",
                     new String[] { movieId }, null);
+            //Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
             movie = createMovieModel(c);
             ((TextView) rootView.findViewById(R.id.original_title)).setText(movie.getOriginal_title());
             ImageView img =(ImageView) rootView.findViewById(R.id.poster_detal_img);
@@ -251,7 +252,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             //Log.e("ERROR", "Existed ");
             ContentValues values = new ContentValues();
             values.put(String.valueOf(MovieColumns.IS_FAVORITE), true);
-            String[] mArray = {movieInsert.getMovieId()};
+            String[] mArray = {movieId};
             getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI, values, MovieColumns.ID + "=?", mArray);
         }
              //}
@@ -332,7 +333,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // after creating cursor adapter send data to cursor
         data.moveToFirst();
-        Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(data));
+        //Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(data));
 
     }
 
@@ -342,12 +343,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     }
 
     MovieModel createMovieModel(Cursor cursor){
-        int idIndex = cursor.getColumnIndexOrThrow("id");
-        int posterindex = cursor.getColumnIndexOrThrow("poster_path");
-        int overviewIndex = cursor.getColumnIndexOrThrow("overview");
-        int releadeIndex = cursor.getColumnIndexOrThrow("release_date");
-        int originalIndex = cursor.getColumnIndexOrThrow("original_title");
-        int voteIndex = cursor.getColumnIndexOrThrow("vote_average");
+        int idIndex = cursor.getColumnIndexOrThrow("ID");
+        int posterindex = cursor.getColumnIndexOrThrow("Poster_Path");
+        int overviewIndex = cursor.getColumnIndexOrThrow("Overview");
+        int releadeIndex = cursor.getColumnIndexOrThrow("Release_Date");
+        int originalIndex = cursor.getColumnIndexOrThrow("Original_Title");
+        int voteIndex = cursor.getColumnIndexOrThrow("Vote_Average");
+        cursor.moveToFirst();
         String id = cursor.getString(idIndex);
         String poster_path= cursor.getString(posterindex);
         String overview= cursor.getString(overviewIndex);
