@@ -1,9 +1,12 @@
 package com.fesdapps.popularmoviesone.Adapters;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.fesdapps.popularmoviesone.Data.MovieColumns;
+import com.fesdapps.popularmoviesone.Fragments.MovieDetailFragment;
 import com.fesdapps.popularmoviesone.MovieDetail;
 import com.fesdapps.popularmoviesone.R;
 import com.squareup.picasso.Picasso;
@@ -27,10 +31,14 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
     private static final String TAG = RVAdapter.class.getSimpleName();
     private final Context mContext;
     private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
+    private final boolean mTwoPane;
+    FragmentManager mManager;
 
-    public RVAdapter(Context context) {
+    public RVAdapter(Context context, boolean twoPane, FragmentManager manager) {
         super(null);
         this.mContext =  context;
+        this.mTwoPane = twoPane;
+        this.mManager = manager;
     }
 
     @Override
@@ -49,10 +57,22 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
         holder.posterImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG,"Clicked on movie:  "+movieId);
-                Intent intent = new Intent(mContext, MovieDetail.class);
-                intent.putExtra("movie",movieId);
-                mContext.startActivity(intent);
+                if(mTwoPane){
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("first",false);
+                    bundle.putString("movieId",movieId);
+                    MovieDetailFragment mdf = new MovieDetailFragment();
+                    mdf.setArguments(bundle);
+                    mManager.beginTransaction()
+                            .add(R.id.container_detail, mdf)
+                            .commit();
+                }
+                else{
+                    Log.e(TAG,"Clicked on movie:  "+movieId);
+                    Intent intent = new Intent(mContext, MovieDetail.class);
+                    intent.putExtra("movie",movieId);
+                    mContext.startActivity(intent);
+                }
             }
         });
     }

@@ -69,7 +69,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
     SharedPreferences prefs;
 
     private static final int MOVIE_LOADER = 101;
-
+    boolean mTwoPane;
 
     public Fragment_Movies(){}
     @Override
@@ -82,7 +82,10 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         Bundle args = new Bundle();
         args.putString("sort",sortType);
         getLoaderManager().initLoader(MOVIE_LOADER, args, this);
-        rvaAdapte = new RVAdapter(getContext());
+        if (getArguments().containsKey("twoPane")) {
+            mTwoPane = getArguments().getBoolean("twoPane");
+        }
+        rvaAdapte = new RVAdapter(getContext(),mTwoPane,getFragmentManager());
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -115,14 +118,6 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         fetchdata();
         restartLoader();
     }
-    @Override
-    public void onStart() {
-        super.onStart();
-        progressBar.setVisibility(View.VISIBLE);
-        fetchdata();
-        restartLoader();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -195,17 +190,6 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
 
 
     public void insertData(MovieModel movieInsert,String sortType){
-
-        //  if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
-        //     Log.e("MOVIE","ENTERED ");
-        //  }else{
-        /*
-        propper way to read especific data from db
-            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
-                null, MovieColumns.ID + "= ?",
-                new String[] { movieInsert.getMovieId() }, null);
-        Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
-        */
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(MoviesProvider.Movies.CONTENT_URI);
         builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
@@ -232,14 +216,12 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         catch (Exception e){
             Log.e("EXCEPTION", "GENERAL");
         }
-        //  }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sort = args.getString("sort","popular");// bring sort type
         CursorLoader cl = null;
-            // send loader proper data depending on what sort type.
             if(sort.equals("popular")) {
                 cl = new CursorLoader(getContext(), MoviesProvider.Movies.CONTENT_URI, null,
                         MovieColumns.TYPE + "= ?", new String[]{"popular"}, null);
@@ -257,6 +239,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        progressBar.setVisibility(View.GONE);
         rvaAdapte.swapCursor(data);
     }
 

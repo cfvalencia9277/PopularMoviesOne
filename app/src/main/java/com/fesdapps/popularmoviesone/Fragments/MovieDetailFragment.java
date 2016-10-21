@@ -5,17 +5,12 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -56,7 +51,7 @@ import cz.msebera.android.httpclient.Header;
 /**
  * Created by Fabian on 22/07/2016.
  */
-public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class MovieDetailFragment extends Fragment  {
     private static final String BASE_URL_IMG = "http://image.tmdb.org/t/p/w185/";
     private static final String BASE_URL = "http://api.themoviedb.org/3/movie/";
     private static final String REVIEW_KEY = "/reviews?api_key=645197735faaceb67ab59d10899455a6";
@@ -70,48 +65,58 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     MoviesReviewAdapter reviewAdapter;
     MovieModel movie;
     String movieId;
+    TextView originalTitle;
+    TextView overview;
+    TextView releadeDate;
 
-    private static final int FAVORITE_LOADER = 0;
+    ImageView img;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //getLoaderManager().initLoader(FAVORITE_LOADER, null, this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
-        Intent intent = getActivity().getIntent();
-        if (intent != null) {
-           // movie =intent.getParcelableExtra("movie");
-            movieId = intent.getStringExtra("movie");
+        if (getArguments().getBoolean("first")) {
+            Log.e("ARGS",String.valueOf(getArguments().getBoolean("first")));
+        }
+        else{
+            movieId = getArguments().getString("movieId");
             Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
                     null, MovieColumns.ID + "= ?",
                     new String[] { movieId }, null);
-            //Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
             movie = createMovieModel(c);
-            ((TextView) rootView.findViewById(R.id.original_title)).setText(movie.getOriginal_title());
-            ImageView img =(ImageView) rootView.findViewById(R.id.poster_detal_img);
-            Picasso.with(getContext()).load(BASE_URL_IMG+movie.getPoster_path()).error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(img);
-            ((TextView) rootView.findViewById(R.id.synopsis)).setText(movie.getOverview());
-            ((TextView) rootView.findViewById(R.id.user_rate)).setText("User Rating: "+ movie.getVote_average());
-            ((TextView) rootView.findViewById(R.id.release_date)).setText("Realease Data: "+movie.getRelease_date());
+            if(savedInstanceState == null){
+                img=(ImageView) rootView.findViewById(R.id.poster_detal_img);
+                originalTitle = ((TextView) rootView.findViewById(R.id.original_title));
+                overview = ((TextView) rootView.findViewById(R.id.synopsis));
+                releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
+                fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
+                fav_btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        insertData();
+                    }
+                });
+                videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
+                videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
+                reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
+                reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            }
+            setViewValues();
             fetchdata(movieId);
         }
-        fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
-        fav_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                insertData(movie);
-            }
-        });
-        videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
-        videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
-        reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
         return rootView;
+    }
+    public void setViewValues(){
+        originalTitle.setText(movie.getOriginal_title());
+        Picasso.with(getContext()).load(BASE_URL_IMG+movie.getPoster_path())
+                .error(R.mipmap.ic_launcher).placeholder(R.mipmap.ic_launcher).into(img);
+        overview.setText(movie.getOverview());
+        releadeDate.setText("Realease Data: "+movie.getRelease_date());
     }
     public void fetchdata(String movieId){
         AsyncHttpClient client = new AsyncHttpClient();
@@ -140,10 +145,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                             feedsListTrailers.add(movietrailer);
                         }
                     }
-                   // Log.e("FEEDLIST",feedsListTrailers.toString());
                     trailerAdapter = new MovieTrailerAdapter(getContext(),feedsListTrailers);
                     videoList.setAdapter(trailerAdapter);
-                   // Log.e("Result Videos",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -165,38 +168,30 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             }
         });
         client.get(BASE_URL+movieId+REVIEW_KEY, new AsyncHttpResponseHandler() {
-
             @Override
             public void onStart() {
                 // called before request is started
             }
-
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] response) {
                 // called when response HTTP status is "200 OK"
                 String str = null;
                 try {
-                   // Log.e("ENTER","TRY");
                     str = new String(response, "UTF-8");
                     JSONObject serversent = new JSONObject(str);
                     JSONArray result = serversent.getJSONArray("results");
                     if(result != null){
-                        //Log.e("RESULT","NOT NULL");
                         feedsListReviews = new ArrayList<>();
                         for(int i=0; i< result.length();i++){
-                           // Log.e("ENTER","FOR LOOP");
                             Gson gson = new Gson();
                             JSONObject reviewObject = (JSONObject) result.get(i);
                             ReviewModel moviereview = gson.fromJson(reviewObject.toString(),ReviewModel.class);
                             addReviewtodb(moviereview);
-                            //Log.e("CONTENT",moviereview.getReviewContent());
                             feedsListReviews.add(moviereview);
                         }
                     }
-                    //Log.e("FEEDLIST",feedsListReviews.toString());
                     reviewAdapter = new MoviesReviewAdapter(getContext(),feedsListReviews);
                     reviewList.setAdapter(reviewAdapter);
-                    //Log.e("Result review",result.toString());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
@@ -215,56 +210,20 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                 // called when request is retried
             }
         });
-
     }
-    public void insertData(MovieModel movieInsert){
-
-       //  if(MoviesProvider.MoviewithIDSERVER(movieInsert.getMovieId()) != null){
-        //     Log.e("MOVIE","ENTERED ");
-       //  }else{
-        /*
-        propper way to read especific data from db
-            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
-                null, MovieColumns.ID + "= ?",
-                new String[] { movieInsert.getMovieId() }, null);
-        Log.e("C CURSOR",DatabaseUtils.dumpCursorToString(c));
-
-             Log.e("MOVIE","NEW FAV");
-             ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
-             ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
-                     MoviesProvider.Movies.CONTENT_URI);
-             builder.withValue(MovieColumns.POSTER_PATH, movieInsert.getPoster_path());
-             builder.withValue(MovieColumns.ORIGINAL_TITLE, movieInsert.getOriginal_title());
-             builder.withValue(MovieColumns.OVERVIEW, movieInsert.getOverview());
-             builder.withValue(MovieColumns.RELEASE_DATE, movieInsert.getRelease_date());
-             builder.withValue(MovieColumns.VOTE_AVERAGE, movieInsert.getVote_average());
-             builder.withValue(String.valueOf(MovieColumns.IS_FAVORITE), false);
-             builder.withValue(MovieColumns.TYPE, "popular");
-             builder.withValue(MovieColumns.ID, movieInsert.getMovieId());
-             batchOperations.add(builder.build());
-             try{
-                 getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
-             }
-
-             catch (SQLiteConstraintException e){
-             */
+    public void insertData(){
         try {
-            //Log.e("ERROR", "Existed ");
             ContentValues values = new ContentValues();
             values.put(String.valueOf(MovieColumns.IS_FAVORITE), true);
             String[] mArray = {movieId};
-            getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI, values, MovieColumns.ID + "=?", mArray);
+            getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,
+                    values, MovieColumns.ID + "=?", mArray);
         }
-             //}
-
-              catch (Exception e) {
-                  e.printStackTrace();
-                  Log.e("EXCEPTION", "GENERAL");
-             }
-
-       //  }
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e("EXCEPTION", "GENERAL");
+        }
     }
-
     public void addReviewtodb(ReviewModel item){
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
         ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
@@ -276,7 +235,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         builder.withValue(ReviewColumns.URL,item.getUrl());
         batchOperations.add(builder.build());
         try{
-            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+            getActivity().getContentResolver()
+                    .applyBatch(MoviesProvider.AUTHORITY, batchOperations);
         }
         catch (SQLiteConstraintException e){
             Log.e("EXIST", "EXIST");
@@ -306,7 +266,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         builder.withValue(TrailerColumns.SIZE,item.getSize());
         batchOperations.add(builder.build());
         try{
-            getActivity().getContentResolver().applyBatch(MoviesProvider.AUTHORITY, batchOperations);
+            getActivity().getContentResolver()
+                    .applyBatch(MoviesProvider.AUTHORITY, batchOperations);
         }
         catch (SQLiteConstraintException e){
             Log.e("EXIST", "EXIST");
@@ -321,27 +282,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             Log.e("EXCEPTION", "GENERAL");
         }
     }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // here user loader manager and return from the database ????
-        // ask how to get data from db using loader - cursor ?
-        return new CursorLoader(getContext(),MoviesProvider.Movies.CONTENT_URI,null,null,null,null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        // after creating cursor adapter send data to cursor
-        data.moveToFirst();
-        //Log.v("Cursor Object", DatabaseUtils.dumpCursorToString(data));
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // swapCursor to null on the cursoradapter to clear everything out
-    }
-
     MovieModel createMovieModel(Cursor cursor){
         int idIndex = cursor.getColumnIndexOrThrow("ID");
         int posterindex = cursor.getColumnIndexOrThrow("Poster_Path");
@@ -358,7 +298,4 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         String vote_average= cursor.getString(voteIndex);
         return new MovieModel(id,poster_path,overview,release_date,original_title,vote_average);
     }
-
-
-
 }
