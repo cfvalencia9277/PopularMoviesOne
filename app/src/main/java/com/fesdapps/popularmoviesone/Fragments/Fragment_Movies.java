@@ -85,7 +85,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         if (getArguments().containsKey("twoPane")) {
             mTwoPane = getArguments().getBoolean("twoPane");
         }
-        rvaAdapte = new RVAdapter(getContext(),mTwoPane,getFragmentManager());
+        rvaAdapte = new RVAdapter(getContext(),mTwoPane,getActivity().getSupportFragmentManager());
     }
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

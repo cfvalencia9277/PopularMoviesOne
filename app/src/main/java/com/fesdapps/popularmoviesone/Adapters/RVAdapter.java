@@ -58,13 +58,15 @@ public class RVAdapter  extends RecyclerViewCursorAdapter<RVAdapter.CustomViewHo
             @Override
             public void onClick(View v) {
                 if(mTwoPane){
+
                     Bundle bundle = new Bundle();
                     bundle.putBoolean("first",false);
                     bundle.putString("movieId",movieId);
+
                     MovieDetailFragment mdf = new MovieDetailFragment();
                     mdf.setArguments(bundle);
                     mManager.beginTransaction()
-                            .add(R.id.container_detail, mdf)
+                            .replace(R.id.container_detail, mdf)
                             .commit();
                 }
                 else{
