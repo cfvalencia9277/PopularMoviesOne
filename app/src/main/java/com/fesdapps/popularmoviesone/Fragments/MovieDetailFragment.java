@@ -79,11 +79,13 @@ public class MovieDetailFragment extends Fragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
+        View rootView;
         if (getArguments().getBoolean("first")) {
             Log.e("ARGS",String.valueOf(getArguments().getBoolean("first")));
+            rootView = inflater.inflate(R.layout.no_movie, container, false);
         }
         else{
+            rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
             movieId = getArguments().getString("movieId");
             Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
                     null, MovieColumns.ID + "= ?",
