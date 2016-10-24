@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Fragments;
+package com.fesdapps.popularmoviesone.fragments;
 
 import com.fesdapps.popularmoviesone.R;
 

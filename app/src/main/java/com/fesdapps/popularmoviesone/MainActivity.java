@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.facebook.stetho.Stetho;
-import com.fesdapps.popularmoviesone.Fragments.Fragment_Movies;
-import com.fesdapps.popularmoviesone.Fragments.MovieDetailFragment;
+import com.fesdapps.popularmoviesone.fragments.Fragment_Movies;
+import com.fesdapps.popularmoviesone.fragments.MovieDetailFragment;
 
 
 public class MainActivity extends AppCompatActivity {

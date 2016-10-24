@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Adapters;
+package com.fesdapps.popularmoviesone.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
+import com.fesdapps.popularmoviesone.models.MovieTrailerModel;
 import com.fesdapps.popularmoviesone.R;
 
 import java.util.List;

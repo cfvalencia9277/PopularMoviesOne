@@ -1,8 +1,7 @@
-package com.fesdapps.popularmoviesone.Fragments;
+package com.fesdapps.popularmoviesone.fragments;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
@@ -22,16 +21,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fesdapps.popularmoviesone.Adapters.MovieTrailerAdapter;
-import com.fesdapps.popularmoviesone.Adapters.MoviesReviewAdapter;
-import com.fesdapps.popularmoviesone.Data.MovieColumns;
-import com.fesdapps.popularmoviesone.Data.MoviesDatabase;
-import com.fesdapps.popularmoviesone.Data.MoviesProvider;
-import com.fesdapps.popularmoviesone.Data.ReviewColumns;
-import com.fesdapps.popularmoviesone.Data.TrailerColumns;
-import com.fesdapps.popularmoviesone.Models.MovieModel;
-import com.fesdapps.popularmoviesone.Models.MovieTrailerModel;
-import com.fesdapps.popularmoviesone.Models.ReviewModel;
+import com.fesdapps.popularmoviesone.adapters.MovieTrailerAdapter;
+import com.fesdapps.popularmoviesone.adapters.MoviesReviewAdapter;
+import com.fesdapps.popularmoviesone.data.MovieColumns;
+import com.fesdapps.popularmoviesone.data.MoviesProvider;
+import com.fesdapps.popularmoviesone.data.ReviewColumns;
+import com.fesdapps.popularmoviesone.data.TrailerColumns;
+import com.fesdapps.popularmoviesone.models.MovieModel;
+import com.fesdapps.popularmoviesone.models.MovieTrailerModel;
+import com.fesdapps.popularmoviesone.models.ReviewModel;
 import com.fesdapps.popularmoviesone.R;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -91,23 +89,21 @@ public class MovieDetailFragment extends Fragment  {
                     null, MovieColumns.ID + "= ?",
                     new String[] { movieId }, null);
             movie = createMovieModel(c);
-            if(savedInstanceState == null){
-                img=(ImageView) rootView.findViewById(R.id.poster_detal_img);
-                originalTitle = ((TextView) rootView.findViewById(R.id.original_title));
-                overview = ((TextView) rootView.findViewById(R.id.synopsis));
-                releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
-                fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
-                fav_btn.setOnClickListener(new View.OnClickListener() {
+            img=(ImageView) rootView.findViewById(R.id.poster_detal_img);
+            originalTitle = ((TextView) rootView.findViewById(R.id.original_title));
+            overview = ((TextView) rootView.findViewById(R.id.synopsis));
+            releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
+            fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
+            fav_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         insertData();
                     }
                 });
-                videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
-                videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
-                reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
-                reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
-            }
+            videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
+            videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
+            reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
+            reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
             setViewValues();
             fetchdata(movieId);
         }

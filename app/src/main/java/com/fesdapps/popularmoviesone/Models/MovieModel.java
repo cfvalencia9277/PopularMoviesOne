@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Models;
+package com.fesdapps.popularmoviesone.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

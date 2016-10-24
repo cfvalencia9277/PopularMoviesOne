@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Adapters;
+package com.fesdapps.popularmoviesone.adapters;
 
 
 import android.content.Context;
@@ -12,8 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import com.fesdapps.popularmoviesone.Data.MovieColumns;
-import com.fesdapps.popularmoviesone.Fragments.MovieDetailFragment;
+import com.fesdapps.popularmoviesone.data.MovieColumns;
+import com.fesdapps.popularmoviesone.fragments.MovieDetailFragment;
 import com.fesdapps.popularmoviesone.MovieDetail;
 import com.fesdapps.popularmoviesone.R;
 import com.squareup.picasso.Picasso;

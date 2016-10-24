@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Adapters;
+package com.fesdapps.popularmoviesone.adapters;
 
 
 import android.database.Cursor;

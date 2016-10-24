@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Data;
+package com.fesdapps.popularmoviesone.data;
 
 import net.simonvt.schematic.annotation.Database;
 import net.simonvt.schematic.annotation.Table;

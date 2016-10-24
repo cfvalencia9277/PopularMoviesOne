@@ -1,13 +1,12 @@
-package com.fesdapps.popularmoviesone.Fragments;
+package com.fesdapps.popularmoviesone.fragments;
 
 import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -16,7 +15,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,36 +23,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
 import com.facebook.stetho.Stetho;
-import com.fesdapps.popularmoviesone.Adapters.MoviesAdapter;
-import com.fesdapps.popularmoviesone.Adapters.RVAdapter;
-import com.fesdapps.popularmoviesone.Data.MovieColumns;
-import com.fesdapps.popularmoviesone.Data.MoviesProvider;
-import com.fesdapps.popularmoviesone.Models.MovieModel;
+import com.fesdapps.popularmoviesone.adapters.RVAdapter;
+import com.fesdapps.popularmoviesone.data.MovieColumns;
+import com.fesdapps.popularmoviesone.data.MoviesProvider;
+import com.fesdapps.popularmoviesone.models.MovieModel;
 import com.fesdapps.popularmoviesone.R;
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-
 import cz.msebera.android.httpclient.Header;
 
 /**
@@ -111,11 +95,16 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         RecyclerView.LayoutManager layoutManager2 = new GridLayoutManager(getActivity(),2);
         recyclerView.setLayoutManager(layoutManager2);
         recyclerView.setAdapter(rvaAdapte);
+        updateOrder();
         return rootView;
     }
     public void updateOrder(){
         progressBar.setVisibility(View.VISIBLE);
-        fetchdata();
+        try {
+            fetchdata();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         restartLoader();
     }
     @Override
@@ -130,10 +119,10 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         getLoaderManager().restartLoader(MOVIE_LOADER, args, this);
     }
 
-    public void fetchdata(){
+    public void fetchdata() throws MalformedURLException {
         AsyncHttpClient client = new AsyncHttpClient();
-        final String MOVIE_BASE_URL_POPULAR = "http://api.themoviedb.org/3/movie/popular?api_key=645197735faaceb67ab59d10899455a6";
-        final String MOVIE_BASE_URL_TOP_RATED = "http://api.themoviedb.org/3/movie/top_rated?api_key=645197735faaceb67ab59d10899455a6";
+        final String MOVIE_BASE_URL_POPULAR = buildUrl(true);
+        final String MOVIE_BASE_URL_TOP_RATED = buildUrl(false);
         client.get(MOVIE_BASE_URL_POPULAR, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -246,6 +235,27 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         rvaAdapte.swapCursor(null);
+    }
+
+
+    public String buildUrl(boolean ispopular) throws MalformedURLException {
+        final String url = "http://api.themoviedb.org/3/movie/";
+        final String sorttype = "sorttype";
+        final String api_key = "api_key";
+        Uri builtUri;
+        if(ispopular){
+            builtUri = Uri.parse(url).buildUpon()
+                    .appendQueryParameter(sorttype,"popular?")
+                    .appendQueryParameter(api_key,"api_key=645197735faaceb67ab59d10899455a6")
+                    .build();
+        }
+        else{
+            builtUri = Uri.parse(url).buildUpon()
+                    .appendQueryParameter(sorttype,"top_rated?")
+                    .appendQueryParameter(api_key,"api_key=645197735faaceb67ab59d10899455a6")
+                    .build();
+        }
+        return builtUri.toString();
     }
 
 }

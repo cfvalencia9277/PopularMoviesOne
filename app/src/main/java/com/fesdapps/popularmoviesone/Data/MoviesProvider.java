@@ -1,4 +1,4 @@
-package com.fesdapps.popularmoviesone.Data;
+package com.fesdapps.popularmoviesone.data;
 
 import android.net.Uri;
 
