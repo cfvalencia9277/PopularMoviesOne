@@ -1,5 +1,6 @@
 package com.fesdapps.popularmoviesone.fragments;
 
+import android.content.AsyncQueryHandler;
 import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.OperationApplicationException;
@@ -70,37 +71,21 @@ public class MovieDetailFragment extends Fragment  {
     ImageView img;
 
     boolean isfav;
+    AsyncQueryHandler queryHandler;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView;
-        if (getArguments().getBoolean("first")) {
-            Log.e("ARGS",String.valueOf(getArguments().getBoolean("first")));
-            rootView = inflater.inflate(R.layout.no_movie, container, false);
-        }
-        else{
-            rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
-            movieId = getArguments().getString("movieId");
-            Cursor c = getActivity().getContentResolver().query(MoviesProvider.Movies.CONTENT_URI,
-                    null, MovieColumns.ID + "= ?",
-                    new String[] { movieId }, null);
-            movie = createMovieModel(c);
-            img=(ImageView) rootView.findViewById(R.id.poster_detal_img);
-            originalTitle = ((TextView) rootView.findViewById(R.id.original_title));
-            overview = ((TextView) rootView.findViewById(R.id.synopsis));
-            releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
-            fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
-            if(movie.isFavorite().equals("1")){
-                isfav = true;
-                fav_btn.setText(getString(R.string.bn_remove_fav));
-            }else {isfav = false;}
-            fav_btn.setOnClickListener(new View.OnClickListener() {
+        queryHandler = new AsyncQueryHandler( getActivity().getContentResolver()) {
+            @Override
+            protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
+                super.onQueryComplete(token, cookie, cursor);
+                movie = createMovieModel(cursor);
+                if(movie.isFavorite().equals("1")){
+                    isfav = true;
+                    fav_btn.setText(getString(R.string.bn_remove_fav));
+                }else {isfav = false;}
+                fav_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if(isfav){
@@ -114,11 +99,33 @@ public class MovieDetailFragment extends Fragment  {
                         }
                     }
                 });
+                setViewValues();
+            }
+        };
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView;
+        if (getArguments().getBoolean("first")) {
+            Log.e("ARGS",String.valueOf(getArguments().getBoolean("first")));
+            rootView = inflater.inflate(R.layout.no_movie, container, false);
+        }
+        else{
+            rootView = inflater.inflate(R.layout.moviedetail_fragmentview, container, false);
+            movieId = getArguments().getString("movieId");
+            queryHandler.startQuery(1,null,MoviesProvider.Movies.CONTENT_URI,null,MovieColumns.ID + "= ?",
+                    new String[] { movieId }, null);
+            img=(ImageView) rootView.findViewById(R.id.poster_detal_img);
+            originalTitle = ((TextView) rootView.findViewById(R.id.original_title));
+            overview = ((TextView) rootView.findViewById(R.id.synopsis));
+            releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
+            fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
             videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
             videoList.setLayoutManager(new LinearLayoutManager(getActivity()));
             reviewList = (RecyclerView) rootView.findViewById(R.id.movieReview);
             reviewList.setLayoutManager(new LinearLayoutManager(getActivity()));
-            setViewValues();
             fetchdata(movieId);
         }
         return rootView;
@@ -228,7 +235,7 @@ public class MovieDetailFragment extends Fragment  {
             ContentValues values = new ContentValues();
             values.put(String.valueOf(MovieColumns.IS_FAVORITE), !isfav);
             String[] mArray = {movieId};
-            getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,
+            queryHandler.startUpdate(2,null,MoviesProvider.Movies.CONTENT_URI,
                     values, MovieColumns.ID + "=?", mArray);
         }
         catch (Exception e) {
