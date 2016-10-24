@@ -69,6 +69,8 @@ public class MovieDetailFragment extends Fragment  {
 
     ImageView img;
 
+    boolean isfav;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,10 +96,22 @@ public class MovieDetailFragment extends Fragment  {
             overview = ((TextView) rootView.findViewById(R.id.synopsis));
             releadeDate = ((TextView) rootView.findViewById(R.id.release_date));
             fav_btn = (Button) rootView.findViewById(R.id.fav_btn);
+            if(movie.isFavorite().equals("1")){
+                isfav = true;
+                fav_btn.setText(getString(R.string.bn_remove_fav));
+            }else {isfav = false;}
             fav_btn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        insertData();
+                        if(isfav){
+                            insertData(true);
+                            fav_btn.setText(getString(R.string.bn_add_fav));
+                            isfav = false;
+                        }else {
+                            insertData(false);
+                            fav_btn.setText(getString(R.string.bn_remove_fav));
+                            isfav = true;
+                        }
                     }
                 });
             videoList = (RecyclerView) rootView.findViewById(R.id.movieTrailer);
@@ -209,10 +223,10 @@ public class MovieDetailFragment extends Fragment  {
             }
         });
     }
-    public void insertData(){
+    public void insertData(boolean isfav){
         try {
             ContentValues values = new ContentValues();
-            values.put(String.valueOf(MovieColumns.IS_FAVORITE), true);
+            values.put(String.valueOf(MovieColumns.IS_FAVORITE), !isfav);
             String[] mArray = {movieId};
             getActivity().getContentResolver().update(MoviesProvider.Movies.CONTENT_URI,
                     values, MovieColumns.ID + "=?", mArray);
@@ -287,6 +301,8 @@ public class MovieDetailFragment extends Fragment  {
         int releadeIndex = cursor.getColumnIndexOrThrow("Release_Date");
         int originalIndex = cursor.getColumnIndexOrThrow("Original_Title");
         int voteIndex = cursor.getColumnIndexOrThrow("Vote_Average");
+        int typeIndex = cursor.getColumnIndexOrThrow("Type");
+        int isFavIndex = cursor.getColumnIndexOrThrow("Is_Favorite");
         cursor.moveToFirst();
         String id = cursor.getString(idIndex);
         String poster_path= cursor.getString(posterindex);
@@ -294,6 +310,9 @@ public class MovieDetailFragment extends Fragment  {
         String release_date= cursor.getString(releadeIndex);
         String original_title= cursor.getString(originalIndex);
         String vote_average= cursor.getString(voteIndex);
-        return new MovieModel(id,poster_path,overview,release_date,original_title,vote_average);
+        String type = cursor.getString(typeIndex);
+        String isFavorite = cursor.getString(isFavIndex);
+        Log.e("ISFAVORITE",cursor.getString(isFavIndex));
+        return new MovieModel(id,poster_path,overview,release_date,original_title,vote_average,type,isFavorite);
     }
 }

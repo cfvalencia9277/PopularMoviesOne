@@ -12,7 +12,10 @@
     <string name="pref_label_favorite">favorite</string>
     <string name="action_settings">Order</string>
     <string name="action_refresh">Refresh</string>
-
+    <string name="bn_add_fav">Add Fav.</string>
+    <string name="bn_remove_fav">Remove Fav.</string>
+    <string name="tv_reviews">REVIEWS: </string>
+    <string name="tv_trailer">TRAILERS:  </string>
 
 
 </resources>

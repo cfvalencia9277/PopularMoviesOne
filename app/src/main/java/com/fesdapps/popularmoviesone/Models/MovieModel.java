@@ -18,7 +18,24 @@ public class MovieModel  implements Parcelable{
     String release_date;
     String original_title;
     String vote_average;
+    String type;
+    String isFavorite;
 
+    public String isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(String favorite) {
+        isFavorite = favorite;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     protected MovieModel(Parcel in) {
         id = in.readString();
@@ -27,6 +44,7 @@ public class MovieModel  implements Parcelable{
         release_date = in.readString();
         original_title = in.readString();
         vote_average = in.readString();
+        type = in.readString();
     }
 
     public static final Creator<MovieModel> CREATOR = new Creator<MovieModel>() {
@@ -89,15 +107,15 @@ public class MovieModel  implements Parcelable{
     }
 
 
-    public MovieModel(String id,String poster_path,String overview,String release_date,String original_title,String vote_average){
+    public MovieModel(String id,String poster_path,String overview,String release_date,String original_title,String vote_average,String type, String isFavorite){
         this.id = id;
         this.poster_path = poster_path;
         this.overview = overview;
         this.release_date =release_date;
         this.original_title =original_title;
         this.vote_average =vote_average;
-
-
+        this.type = type;
+        this.isFavorite = isFavorite;
     }
 
     @Override

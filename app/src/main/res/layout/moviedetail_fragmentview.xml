@@ -53,7 +53,7 @@
                 android:id="@+id/fav_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Fav."/>
+                android:text="@string/bn_add_fav"/>
         </LinearLayout>
     </LinearLayout>
     <TextView
@@ -68,7 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:text="TRAILERS: "
+        android:text="@string/tv_trailer"
         />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/movieTrailer"
@@ -83,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:text="REVIEWS: "
+        android:text="@string/tv_reviews"
         />
     <android.support.v7.widget.RecyclerView
         android:id="@+id/movieReview"
