@@ -77,9 +77,6 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             updateOrder();
@@ -146,7 +143,7 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Log.e("fetch","FAIL FAIL"+error);
             }
         });
         client.get(MOVIE_BASE_URL_TOP_RATED, new AsyncHttpResponseHandler() {
@@ -172,11 +169,10 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Log.e("fetch","FAIL FAIL"+error);
             }
         });
     }
-
 
     public void insertData(MovieModel movieInsert,String sortType){
         ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>(1);
@@ -237,24 +233,23 @@ public class Fragment_Movies extends Fragment implements LoaderManager.LoaderCal
         rvaAdapte.swapCursor(null);
     }
 
-
     public String buildUrl(boolean ispopular) throws MalformedURLException {
-        final String url = "http://api.themoviedb.org/3/movie/";
-        final String sorttype = "sorttype";
         final String api_key = "api_key";
         Uri builtUri;
+        String url = "http://api.themoviedb.org/3/movie/";
         if(ispopular){
             builtUri = Uri.parse(url).buildUpon()
-                    .appendQueryParameter(sorttype,"popular?")
-                    .appendQueryParameter(api_key,"api_key=645197735faaceb67ab59d10899455a6")
+                    .appendPath("popular")
+                    .appendQueryParameter(api_key,"645197735faaceb67ab59d10899455a6")
                     .build();
         }
         else{
             builtUri = Uri.parse(url).buildUpon()
-                    .appendQueryParameter(sorttype,"top_rated?")
-                    .appendQueryParameter(api_key,"api_key=645197735faaceb67ab59d10899455a6")
+                    .appendPath("top_rated")
+                    .appendQueryParameter(api_key,"645197735faaceb67ab59d10899455a6")
                     .build();
         }
+        Log.e("URL",builtUri.toString());
         return builtUri.toString();
     }
 
